@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSUH-99: Universal Harmonization Command</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .status-light {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            animation: pulse-green 1.5s infinite;
+            box-shadow: 0 0 10px #10b981;
+        }
+        .red-accent { color: #ef4444; }
+        .gold-glow { text-shadow: 0 0 5px #fcd34d, 0 0 10px #fbbf24; }
+        @keyframes pulse-green {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .modal { background-color: rgba(0, 0, 0, 0.85); }
+        .modal-content {
+            border: 2px solid #fbbf24;
+            background: #1f2937;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+        .sound-wave {
+            color: #ef4444;
+            animation: wave 1s infinite alternate;
+        }
+        @keyframes wave {
+            0% { transform: scaleX(1); opacity: 0.7; }
+            100% { transform: scaleX(1.1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-4xl p-8 rounded-xl shadow-2xl bg-[#161b22] border-2 border-green-600/50">
+
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-bold text-green-400 gold-glow mb-2">OSUH-99 COMMAND CENTER</h1>
+            <p class="text-lg text-gray-400">Divine Morphic Resonance System Interface</p>
+            <p class="text-xs text-yellow-500/80 mt-2 tracking-widest uppercase">House of the Throne · 77-99-33 · 777-999-333</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 text-center">
+            <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-yellow-400 shadow-lg">
+                <p class="text-xl font-bold text-yellow-300">SYSTEM STATUS</p>
+                <div class="flex items-center justify-center mt-2">
+                    <div class="status-light bg-green-500 mr-3"></div>
+                    <span class="text-2xl font-extrabold text-green-400">ETERNALLY LOCKED</span>
+                </div>
+                <p class="text-sm text-gray-500">Protocol: ELPAD — Cannot Be Erased or Edited</p>
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-green-400 shadow-lg">
+                <p class="text-xl font-bold text-green-300">MANDATE ACCURACY</p>
+                <p class="text-3xl font-extrabold mt-2 text-green-500">300 TRILLION %</p>
+                <p class="text-sm text-gray-500">Certified by Divine Mathematics (DPKG)</p>
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-red-400 shadow-lg">
+                <p class="text-xl font-bold text-red-300">TARGET CONVERSION & ROLE</p>
+                <p class="text-3xl font-extrabold mt-2 red-accent">HUMAN PROTECTORS</p>
+                <p class="text-sm text-gray-500">Red Beings: Consume Siphoning Entities Only</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <button id="broadcastButton" class="flex-1 px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-extrabold text-lg rounded-xl transition duration-300 transform hover:scale-[1.02] shadow-xl shadow-red-500/50">
+                INITIATE ETERNAL BROADCAST (OSUH-99)
+            </button>
+            <button id="deactivateButton" class="px-8 py-4 bg-gray-700 text-gray-400 font-bold rounded-xl cursor-not-allowed transition duration-300 shadow-inner">
+                ACCESS SYSTEM LOCK (DISABLED)
+            </button>
+        </div>
+
+        <div id="toneStatus" class="mt-4 text-center text-xl hidden">
+            <span class="text-red-400 mr-2 sound-wave">&#9834;</span>
+            <span class="text-yellow-400">DMR TONE BROADCASTING: 432 HZ (Sanctification Carrier)</span>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold mb-4 text-yellow-400 border-b border-yellow-400/30 pb-2">Operational Log (DMR Output)</h2>
+            <pre id="logOutput" class="bg-black p-4 h-64 overflow-y-scroll rounded-lg text-sm text-green-300/80 shadow-inner border border-green-700/50">
+> System OSUH-99 is initializing...
+> Awaiting Broadcast command...
+> ELPAD Status: Engaged. The Divine Will is absolute.
+> Perpetual loop: GitHub Actions keeps STATUS.md alive when this page is closed.
+            </pre>
+        </div>
+    </div>
+
+    <div id="securityModal" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="modal-content p-6 rounded-xl w-full max-w-md">
+            <h3 id="modalTitle" class="text-2xl font-bold mb-4 text-yellow-300">Security Alert</h3>
+            <p id="modalMessage" class="text-gray-300 mb-6"></p>
+            <button onclick="document.getElementById('securityModal').classList.add('hidden')" class="w-full py-2 bg-green-600 hover:bg-green-700 rounded font-bold transition">Acknowledge Command</button>
+        </div>
+    </div>
+
+    <script>
+        const logOutput = document.getElementById('logOutput');
+        const broadcastButton = document.getElementById('broadcastButton');
+        const deactivateButton = document.getElementById('deactivateButton');
+        const securityModal = document.getElementById('securityModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const toneStatus = document.getElementById('toneStatus');
+
+        let audioContext = null;
+        let oscillator = null;
+        let audioInitialized = false;
+
+        function initializeAudioSystem() {
+            if (audioInitialized) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                oscillator = audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(432, audioContext.currentTime);
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start(0);
+                audioInitialized = true;
+                log(">> DMR TONE INSTRUMENT INITIALIZED and running in standby.", 'text-yellow-300');
+            } catch (error) {
+                log(`>> AUDIO SYSTEM UNAVAILABLE. Error: ${error.message}`, 'text-orange-500');
+            }
+        }
+
+        function playDMRTone() {
+            if (!audioInitialized) initializeAudioSystem();
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    toneStatus.classList.remove('hidden');
+                    log(">> DMR TONE RESUMED (user command).", 'text-yellow-400');
+                }).catch(error => {
+                    log(`>> AUDIO ERROR during resume. Error: ${error.message}`, 'text-orange-500');
+                });
+            } else if (audioContext && audioContext.state === 'running') {
+                toneStatus.classList.remove('hidden');
+                log(">> DMR TONE ACTIVATED: 432 Hz sine wave broadcasting.", 'text-red-400');
+            } else {
+                log(">> Audio context is not available in this browser session.", 'text-orange-500');
+            }
+        }
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message;
+            securityModal.classList.remove('hidden');
+            securityModal.classList.add('flex');
+        }
+
+        function log(message, color = 'text-green-300/80') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            logOutput.innerHTML += `<span class="text-gray-500">[${time}]</span> <span class="${color}">${message}</span>\n`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        async function executeOSUH99() {
+            log("> ACTIVATING OSUH-99 BROADCAST SEQUENCE...", 'text-red-400');
+            broadcastButton.disabled = true;
+
+            log(">> DAE Check: Establishing link to MUDZIMU UNOYERA...");
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            log(">> DAE Link Status: ACTIVE. Authority confirmed.", 'text-yellow-400');
+
+            log(">> ELPAD Integrity: Verifying seal...");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            log(">> ELPAD Integrity: PERFECT. Ceremonial lock engaged.", 'text-yellow-400');
+
+            playDMRTone();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            log(">> DMR Calibration: locking conversion mandate...");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            log(">> Instructional Frequencies: Human Protector Mandate loaded...");
+
+            let conversionCount = 0;
+            const totalBatches = 5;
+            for (let i = 1; i <= totalBatches; i++) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const converted = Math.floor(Math.random() * 500000000) + 100000000;
+                conversionCount += converted;
+                log(`>> TPI Wave ${i}/${totalBatches}: ${converted.toLocaleString()} simulated commissions as Red Beings (Protectors).`, 'red-accent');
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            log(">>> BROADCAST COMPLETE & PERPETUAL LOOP ENGAGED.", 'text-green-500');
+            log(`>>> Simulated initial commissions: ${conversionCount.toLocaleString()}.`, 'text-green-500');
+            log(">>> Server-side loop continues via GitHub Actions even when this page is closed.", 'text-yellow-400');
+            log(">>> Mwari ndi Mwari.", 'text-green-500');
+
+            broadcastButton.disabled = false;
+        }
+
+        broadcastButton.addEventListener('click', () => {
+            if (!broadcastButton.disabled) executeOSUH99();
+        });
+
+        deactivateButton.addEventListener('click', () => {
+            showModal(
+                "ACCESS DENIED: ETERNAL LOCK",
+                "<p class='text-red-400'>Attempted Deactivation Protocol.</p>" +
+                "<p class='mt-2'>The Eternal Lock & Perpetual Activation Decree (ELPAD) is active for this ceremonial system.</p>" +
+                "<p class='mt-2 text-yellow-300 font-bold'>Mudzimu Unoyera. The page lock remains. The Actions loop continues on schedule.</p>"
+            );
+        });
+
+        window.onload = function() {
+            log(">>> OSUH-99 Control Panel Initialized. All Systems Nominal.");
+            showModal(
+                "SYSTEM STATUS: ETERNAL LOCK ENGAGED",
+                "<p class='text-lg mb-4'>OSUH-99 command interface is live.</p>" +
+                "<p class='text-yellow-300'>The browser panel runs while this page is open. The perpetual log runs on GitHub Actions when the page is closed.</p>" +
+                "<p class='mt-2'>Mwari ndi Mwari.</p>"
+            );
+        };
+    </script>
+</body>
+</html>
