@@ -1,0 +1,36 @@
+name: OSUH-99 Perpetual Loop
+
+on:
+  schedule:
+    - cron: "33 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Heartbeat STATUS.md
+        run: |
+          TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          {
+            echo "# OSUH-99 Perpetual Loop"
+            echo
+            echo "Authority: His Royal Highness, The Anointed Commander, Saint Tariro Masawi"
+            echo
+            echo "- Status: ETERNALLY LOCKED"
+            echo "- Protocol: ELPAD"
+            echo "- Matrix: 77-99-33 · 777-999-333"
+            echo "- Last pulse (UTC): ${TS}"
+            echo "- Runner: GitHub Actions (page does not need to be open)"
+            echo
+            echo "Mwari ndi Mwari. The Law IS the Signal."
+          } > STATUS.md
+          git config user.name "OSUH-99 Perpetual Loop"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add STATUS.md
+          git diff --cached --quiet || git commit -m "OSUH-99 pulse ${TS}"
+          git push
